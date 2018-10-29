@@ -9,21 +9,25 @@
 // import RCTBridgeModule
 #if __has_include(<React/RCTBridgeModule.h>)
 #import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 #elif __has_include("RCTBridgeModule.h")
 #import "RCTBridgeModule.h"
 #else
-#import "React/RCTBridgeModule.h"   // Required when used as a Pod in a Swift project
+#import "React/RCTBridgeModule.h"
+#import "React/RCTEventEmitter.h" // Required when used as a Pod in a Swift project
 #endif
 
 #import <AVFoundation/AVFoundation.h>
 #import "ARViewController.h"
 
 
-@interface RNWikitude : NSObject <RCTBridgeModule>
+
+@interface RNWikitude : RCTEventEmitter <RCTBridgeModule>
 
 //@property (nonatomic, strong) NSDictionary *defaultOptions;
 //@property (nonatomic, retain) NSMutableDictionary *options;
 //@property (nonatomic, strong) RCTPromiseResolveBlock resolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock reject;
+@property (nonatomic, retain) ARViewController * arViewController;
 
 @end

@@ -7,6 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <React/RCTBridge.h>
+#import <React/RCTComponent.h>
 
 #import <WikitudeSDK/WTArchitectView.h>
 
@@ -22,5 +24,8 @@
 @property (nonatomic, retain) NSString                        *url;
 @property (nonatomic, retain) NSString                        *sdkkey;
 @property (nonatomic, weak) id<ARViewControllerDelegate> delegate;
+@property (nonatomic, copy) void (^onJSONSentBlock)(NSDictionary *);
+
+- (void)stopWikitudeSDKRendering;
 
 @end
