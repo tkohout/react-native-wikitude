@@ -16,6 +16,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -32,6 +33,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
+
+import com.facebook.react.bridge.ReactContext;
 
 public class WikitudeActivity extends Activity {
 
@@ -231,8 +234,17 @@ public class WikitudeActivity extends Activity {
         return new ArchitectJavaScriptInterfaceListener() {
             @Override
             public void onJSONObjectReceived(JSONObject jsonObject) {
-
+                // ReactContext reactContext = getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
                 //Allows the app to react to JSON actions sent through the Wikitude Architect World.
+                // reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("json-sent", jsonObject);
+
+                LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+
+
+                Intent intent = new Intent();
+                intent.setAction(WikitudeModule.MyBroadcastReceiver.ACTION);
+                intent.putExtra("data", jsonObject.toString());
+                localBroadcastManager.sendBroadcast(intent);
 
                 try {
                     /*
