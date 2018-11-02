@@ -4,8 +4,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -49,7 +52,7 @@ public class WikitudeActivity extends Activity {
 
     protected static final String TAG = "WikitudeActivity";
     protected String wikitudeSDKKey = "";
-
+    protected ActivityBroadcastReceiver receiver;
     /**
      * holds the Wikitude SDK AR-View, this is where camera, markers, compass, 3D models etc. are rendered
      */
@@ -88,6 +91,13 @@ public class WikitudeActivity extends Activity {
         return features;
     }
 
+    public class ActivityBroadcastReceiver extends BroadcastReceiver {
+        public static final String ACTION = "com.brave.wikitudebridge.stopar";
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finish();
+        }
+    }
 
 
 
@@ -96,9 +106,13 @@ public class WikitudeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-	      this.thisActivity = this;
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+        receiver = new ActivityBroadcastReceiver();
+        localBroadcastManager.registerReceiver(receiver, new IntentFilter(ActivityBroadcastReceiver.ACTION));
 
-	      this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+        this.thisActivity = this;
+
+	    this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 
         Bundle extras = getIntent().getExtras();
 
@@ -242,9 +256,10 @@ public class WikitudeActivity extends Activity {
 
 
                 Intent intent = new Intent();
-                intent.setAction(WikitudeModule.MyBroadcastReceiver.ACTION);
+                intent.setAction(WikitudeModule.ModuleBroadcastReceiver.ACTION);
                 intent.putExtra("data", jsonObject.toString());
                 localBroadcastManager.sendBroadcast(intent);
+
 
                 try {
                     /*

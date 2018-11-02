@@ -8,38 +8,54 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.wikitude.architect.ArchitectView;
 import com.wikitude.common.permission.PermissionManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Arrays;
 
 public class WikitudeModule extends ReactContextBaseJavaModule {
-    private MyBroadcastReceiver receiver;
+    private ModuleBroadcastReceiver receiver;
 
     public WikitudeModule(ReactApplicationContext reactContext) {
         super(reactContext);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(reactContext);
-        receiver = new MyBroadcastReceiver();
-        localBroadcastManager.registerReceiver(receiver, new IntentFilter(MyBroadcastReceiver.ACTION));
+        receiver = new ModuleBroadcastReceiver();
+        localBroadcastManager.registerReceiver(receiver, new IntentFilter(ModuleBroadcastReceiver.ACTION));
 
     }
 
-    public class MyBroadcastReceiver extends BroadcastReceiver {
+    public class ModuleBroadcastReceiver extends BroadcastReceiver {
         public static final String ACTION = "com.brave.wikitudebridge.jsonsent";
         @Override
         public void onReceive(Context context, Intent intent) {
-            String jsonObject = intent.getStringExtra("data");
-            System.out.println(jsonObject);
+            String jsonString = intent.getStringExtra("data");
+
+            ReactContext reactContext = getReactApplicationContext();
+
+            try {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                WritableMap params = JsonConvert.jsonToReact(jsonObject);
+                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("json-sent", params);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -71,6 +87,18 @@ public class WikitudeModule extends ReactContextBaseJavaModule {
 
 	  //launch activity
 	  currentActivity.startActivity(intent);
+
   }
+
+
+    @ReactMethod
+    public void stopAR() {
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getReactApplicationContext());
+
+        Intent intent = new Intent();
+        intent.setAction(WikitudeActivity.ActivityBroadcastReceiver.ACTION);
+        localBroadcastManager.sendBroadcast(intent);
+    }
+
 
 }
